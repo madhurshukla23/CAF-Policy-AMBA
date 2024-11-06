@@ -1,0 +1,4 @@
+variables:
+  vmImage: 'ubuntu-latest'
+  poolName: ''
+  projectid: "xxxxxx"
