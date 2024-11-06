@@ -1,0 +1,35 @@
+{
+    "name": "Notification-Assets",
+    "type": "Microsoft.Authorization/policyAssignments",
+    "apiVersion": "2022-06-01",
+    "properties": {
+      "displayName": "Deploy Azure Monitor Baseline Alerts for Notification Assets",
+      "description": "Deploys the Alert Processing Rule and the Action Group used by the Connectivity, Identity, Management and Landing zone initiatives.",
+      "notScopes": [],
+      "parameters": {
+        "ALZMonitorResourceGroupLocation": {
+          "value": "uksouth"
+        },
+        "ALZMonitorResourceGroupName": {
+          "value": "OVERRIDE"
+        },
+        "alzMonitorResourceGroupTags": {
+          "value": {
+            "_deployed_by_alz_monitor": true
+          }
+        },
+        "ALZMonitorActionGroupEmail": {
+          "value": "security.contact@replace.me"
+        }
+      },
+      "policyDefinitionId": "${root_scope_resource_id}/providers/Microsoft.Authorization/policySetDefinitions/Notification-Assets",
+      "nonComplianceMessages": [],
+      "scope": "${current_scope_resource_id}",
+      "enforcementMode": null
+    },
+    "location": "${default_location}",
+    "identity": {
+      "type": "SystemAssigned"
+    }
+  }
+  

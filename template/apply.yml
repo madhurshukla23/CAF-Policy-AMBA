@@ -1,0 +1,38 @@
+parameters:
+  Env: ""
+  vmImage: $(vmImage)
+  poolName: $(poolName)
+
+steps:
+  - checkout: self
+    displayName: Checkout Terraform Module
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform Init
+    inputs:
+      provider: "azurerm"
+      command: "init"
+      workingDirectory: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+      backendServiceArm: "$(ServiceConnection)"
+      backendAzureRmResourceGroupName: "$(TERRAFORMSTORAGERG)"
+      backendAzureRmStorageAccountName: "$(TERRAFORMSTORAGEACCOUNT)"
+      backendAzureRmContainerName: "$(TERRAFORMSTORAGECONTAINER)"
+      backendAzureRmKey: "policy-${{ parameters.Env }}.tfstate"
+    env:
+      ARM_USE_AZUREAD: true
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform Apply
+    inputs:
+      provider: "azurerm"
+      command: "apply"
+      workingDirectory: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+      backendServiceArm: "$(ServiceConnection)"
+      backendAzureRmResourceGroupName: "$(TERRAFORMSTORAGERG)"
+      backendAzureRmStorageAccountName: "$(TERRAFORMSTORAGEACCOUNT)"
+      backendAzureRmContainerName: "$(TERRAFORMSTORAGECONTAINER)"
+      backendAzureRmKey: "policy-${{ parameters.Env }}.tfstate"
+      commandOptions: "-auto-approve"
+      environmentServiceNameAzureRM: "$(ServiceConnection)"
+    env:
+      ARM_USE_AZUREAD: true

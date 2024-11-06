@@ -1,0 +1,508 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+  "name": "Deploy_VM_CPU_Alert",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Deploy VM CPU Alert",
+    "description": "Policy to audit/deploy VM CPU Alert",
+    "mode": "All",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud"
+      ],
+      "version": "1.1.0",
+      "source": "https://github.com/Azure/azure-monitor-baseline-alerts/",
+      "category": "Compute",
+      "_deployed_by_amba": "True"
+    },
+    "parameters": {
+      "evaluationFrequency": {
+        "allowedValues": [
+          "PT5M",
+          "PT15M",
+          "PT30M",
+          "PT1H"
+        ],
+        "defaultValue": "PT5M",
+        "metadata": {
+          "description": "Evaluation frequency for the alert",
+          "displayName": "Evaluation Frequency"
+        },
+        "type": "string"
+      },
+      "windowSize": {
+        "allowedValues": [
+          "PT5M",
+          "PT15M",
+          "PT30M",
+          "PT1H",
+          "PT6H",
+          "PT12H",
+          "PT24H"
+        ],
+        "defaultValue": "PT15M",
+        "metadata": {
+          "description": "Window size for the alert",
+          "displayName": "Window Size"
+        },
+        "type": "string"
+      },
+      "effect": {
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "description": "Effect of the policy",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      },
+      "enabled": {
+        "allowedValues": [
+          "true",
+          "false"
+        ],
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Alert state for the alert",
+          "displayName": "Alert State"
+        },
+        "type": "string"
+      },
+      "severity": {
+        "allowedValues": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "defaultValue": "2",
+        "metadata": {
+          "description": "Severity of the Alert",
+          "displayName": "Severity"
+        },
+        "type": "string"
+      },
+      "alertResourceGroupLocation": {
+        "defaultValue": "centralus",
+        "metadata": {
+          "description": "Location of the Resource group the alert is placed in",
+          "displayName": "Resource Group Location"
+        },
+        "type": "string"
+      },
+      "alertResourceGroupName": {
+        "defaultValue": "AlzMonitoring-rg",
+        "metadata": {
+          "description": "Resource group the alert is placed in",
+          "displayName": "Resource Group Name"
+        },
+        "type": "string"
+      },
+      "autoMitigate": {
+        "allowedValues": [
+          "true",
+          "false"
+        ],
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Auto Mitigate for the alert",
+          "displayName": "Auto Mitigate"
+        },
+        "type": "string"
+      },
+      "threshold": {
+        "defaultValue": "85",
+        "metadata": {
+          "description": "Threshold for the alert",
+          "displayName": "Threshold"
+        },
+        "type": "string"
+      },
+      "alertResourceGroupTags": {
+        "defaultValue": {
+          "environment": "test"
+        },
+        "metadata": {
+          "description": "Tags on the Resource group the alert is placed in",
+          "displayName": "Resource Group Tags"
+        },
+        "type": "Object"
+      },
+      "timeAggregation": {
+        "allowedValues": [
+          "Average",
+          "Count",
+          "Maximum",
+          "Minimum",
+          "Total"
+        ],
+        "defaultValue": "Average",
+        "metadata": {
+          "displayName": "TimeAggregation"
+        },
+        "type": "string"
+      },
+      "autoResolveTime": {
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Auto Resolve time for the alert in ISO 8601 format",
+          "displayName": "Auto Resolve"
+        },
+        "type": "string"
+      },
+      "operator": {
+        "allowedValues": [
+          "Equals",
+          "GreaterThan",
+          "GreaterThanOrEqual",
+          "LessThan",
+          "LessThanOrEqual"
+        ],
+        "defaultValue": "GreaterThan",
+        "metadata": {
+          "displayName": "Operator"
+        },
+        "type": "string"
+      },
+      "autoResolve": {
+        "allowedValues": [
+          "true",
+          "false"
+        ],
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Auto Resolve for the alert",
+          "displayName": "Auto Resolve"
+        },
+        "type": "string"
+      },
+      "failingPeriods": {
+        "defaultValue": "1",
+        "metadata": {
+          "description": "Number of failing periods before alert is fired",
+          "displayName": "Failing Periods"
+        },
+        "type": "string"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/scheduledQueryRules",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/displayName",
+                "equals": "[concat(subscription().displayName, '-VMHighCPUAlert')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/scopes[*]",
+                "equals": "[subscription().id]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/enabled",
+                "equals": "[parameters('enabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/evaluationFrequency",
+                "equals": "[parameters('evaluationFrequency')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/windowSize",
+                "equals": "[parameters('windowSize')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/severity",
+                "equals": "[parameters('severity')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledqueryrules/autoMitigate",
+                "equals": "[parameters('autoMitigate')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].threshold",
+                "equals": "[parameters('threshold')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].operator",
+                "equals": "[parameters('operator')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].timeAggregation",
+                "equals": "[parameters('timeAggregation')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].failingPeriods.numberOfEvaluationPeriods",
+                "equals": "1"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].failingPeriods.minFailingPeriodsToAlert",
+                "equals": "[parameters('failingPeriods')]"
+              },
+              {
+                "field": "Microsoft.Insights/scheduledQueryRules/criteria.allOf[*].query",
+                "equals": "InsightsMetrics| where Origin == \"vm.azm.ms\"| where Namespace == \"Processor\" and Name == \"UtilizationPercentage\"| summarize AggregatedValue = avg(Val) by bin(TimeGenerated, 15m), Computer, _ResourceId"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "parameters": {
+                "evaluationFrequency": {
+                  "value": "[parameters('evaluationFrequency')]"
+                },
+                "windowSize": {
+                  "value": "[parameters('windowSize')]"
+                },
+                "enabled": {
+                  "value": "[parameters('enabled')]"
+                },
+                "severity": {
+                  "value": "[parameters('severity')]"
+                },
+                "alertResourceGroupLocation": {
+                  "value": "[parameters('alertResourceGroupLocation')]"
+                },
+                "alertResourceGroupName": {
+                  "value": "[parameters('alertResourceGroupName')]"
+                },
+                "autoMitigate": {
+                  "value": "[parameters('autoMitigate')]"
+                },
+                "threshold": {
+                  "value": "[parameters('threshold')]"
+                },
+                "alertResourceGroupTags": {
+                  "value": "[parameters('alertResourceGroupTags')]"
+                },
+                "timeAggregation": {
+                  "value": "[parameters('timeAggregation')]"
+                },
+                "autoResolveTime": {
+                  "value": "[parameters('autoResolveTime')]"
+                },
+                "operator": {
+                  "value": "[parameters('operator')]"
+                },
+                "autoResolve": {
+                  "value": "[parameters('autoResolve')]"
+                },
+                "failingPeriods": {
+                  "value": "[parameters('failingPeriods')]"
+                }
+              },
+              "mode": "incremental",
+              "template": {
+                "parameters": {
+                  "evaluationFrequency": {
+                    "type": "string"
+                  },
+                  "windowSize": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "string"
+                  },
+                  "severity": {
+                    "type": "string"
+                  },
+                  "alertResourceGroupLocation": {
+                    "type": "string"
+                  },
+                  "alertResourceGroupName": {
+                    "type": "string"
+                  },
+                  "autoMitigate": {
+                    "type": "string"
+                  },
+                  "threshold": {
+                    "type": "string"
+                  },
+                  "alertResourceGroupTags": {
+                    "type": "object"
+                  },
+                  "timeAggregation": {
+                    "type": "string"
+                  },
+                  "autoResolveTime": {
+                    "type": "string"
+                  },
+                  "operator": {
+                    "type": "string"
+                  },
+                  "autoResolve": {
+                    "type": "string"
+                  },
+                  "failingPeriods": {
+                    "type": "string"
+                  }
+                },
+                "contentVersion": "1.0.0.0",
+                "resources": [
+                  {
+                    "type": "Microsoft.Resources/resourceGroups",
+                    "location": "[parameters('alertResourceGroupLocation')]",
+                    "apiVersion": "2021-04-01",
+                    "name": "[parameters('alertResourceGroupName')]",
+                    "tags": "[parameters('alertResourceGroupTags')]"
+                  },
+                  {
+                    "resourceGroup": "[parameters('alertResourceGroupName')]",
+                    "type": "Microsoft.Resources/deployments",
+                    "properties": {
+                      "parameters": {
+                        "enabled": {
+                          "value": "[parameters('enabled')]"
+                        },
+                        "alertResourceGroupLocation": {
+                          "value": "[parameters('alertResourceGroupLocation')]"
+                        },
+                        "alertResourceGroupName": {
+                          "value": "[parameters('alertResourceGroupName')]"
+                        }
+                      },
+                      "mode": "Incremental",
+                      "template": {
+                        "parameters": {
+                          "enabled": {
+                            "type": "string"
+                          },
+                          "alertResourceGroupLocation": {
+                            "type": "string"
+                          },
+                          "alertResourceGroupName": {
+                            "type": "string"
+                          }
+                        },
+                        "contentVersion": "1.0.0.0",
+                        "resources": [
+                          {
+                            "type": "Microsoft.Insights/scheduledQueryRules",
+                            "properties": {
+                              "description": "Log Alert for Virtual Machine CPU",
+                              "displayName": "[concat(subscription().displayName, '-VMHighCPUAlert')]",
+                              "parameters": {
+                                "evaluationFrequency": {
+                                  "value": "[parameters('evaluationFrequency')]"
+                                },
+                                "windowSize": {
+                                  "value": "[parameters('windowSize')]"
+                                },
+                                "enabled": {
+                                  "value": "[parameters('enabled')]"
+                                },
+                                "severity": {
+                                  "value": "[parameters('severity')]"
+                                },
+                                "alertResourceGroupLocation": {
+                                  "value": "[parameters('alertResourceGroupName')]"
+                                },
+                                "alertResourceGroupName": {
+                                  "value": "[parameters('alertResourceGroupName')]"
+                                },
+                                "autoMitigate": {
+                                  "value": "[parameters('autoMitigate')]"
+                                },
+                                "threshold": {
+                                  "value": "[parameters('threshold')]"
+                                },
+                                "autoResolveTime": {
+                                  "value": "[parameters('autoResolveTime')]"
+                                },
+                                "autoResolve": {
+                                  "value": "[parameters('autoResolve')]"
+                                },
+                                "failingPeriods": {
+                                  "value": "[parameters('failingPeriods')]"
+                                }
+                              },
+                              "evaluationFrequency": "[parameters('evaluationFrequency')]",
+                              "windowSize": "[parameters('windowSize')]",
+                              "enabled": "[parameters('enabled')]",
+                              "severity": "[parameters('severity')]",
+                              "autoMitigate": "[parameters('autoMitigate')]",
+                              "scopes": [
+                                "[subscription().Id]"
+                              ],
+                              "criteria": {
+                                "allOf": [
+                                  {
+                                    "threshold": "[parameters('threshold')]",
+                                    "timeAggregation": "[parameters('timeAggregation')]",
+                                    "operator": "[parameters('operator')]",
+                                    "failingPeriods": {
+                                      "numberOfEvaluationPeriods": "1",
+                                      "minFailingPeriodsToAlert": "[parameters('failingPeriods')]"
+                                    },
+                                    "metricMeasureColumn": "AggregatedValue",
+                                    "resourceIdColumn": "_ResourceId",
+                                    "dimensions": [
+                                      {
+                                        "operator": "Include",
+                                        "name": "Computer",
+                                        "values": [
+                                          "*"
+                                        ]
+                                      }
+                                    ],
+                                    "query": "InsightsMetrics| where Origin == \"vm.azm.ms\"| where Namespace == \"Processor\" and Name == \"UtilizationPercentage\"| summarize AggregatedValue = avg(Val) by bin(TimeGenerated, 15m), Computer, _ResourceId"
+                                  }
+                                ]
+                              },
+                              "ruleResolveConfiguration": {
+                                "timeToResolve": "[parameters('autoResolveTime')]",
+                                "autoResolved": "[parameters('autoResolve')]"
+                              },
+                              "targetResourceTypes": [
+                                "Microsoft.Compute/virtualMachines"
+                              ]
+                            },
+                            "location": "[parameters('alertResourceGroupLocation')]",
+                            "apiVersion": "2022-08-01-preview",
+                            "name": "[concat(subscription().displayName, '-VMHighCPUAlert')]",
+                            "tags": {
+                              "_deployed_by_amba": true
+                            }
+                          }
+                        ],
+                        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                        "variables": {}
+                      }
+                    },
+                    "apiVersion": "2019-10-01",
+                    "name": "VMCPUAlert",
+                    "dependsOn": [
+                      "[concat('Microsoft.Resources/resourceGroups/', parameters('alertResourceGroupName'))]"
+                    ]
+                  }
+                ],
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "variables": {}
+              }
+            },
+            "location": "westeurope"
+          },
+          "resourceGroupName": "[parameters('alertResourceGroupName')]",
+          "deploymentScope": "subscription",
+          "existenceScope": "resourcegroup"
+        }
+      }
+    }
+  }
+}

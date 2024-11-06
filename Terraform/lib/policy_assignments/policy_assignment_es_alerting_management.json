@@ -1,0 +1,82 @@
+{
+    "name": "Alerting-Management",
+    "type": "Microsoft.Authorization/policyAssignments",
+    "apiVersion": "2022-06-01",
+    "properties": {
+      "displayName": "Deploy Azure Monitor Baseline Alerts for Management",
+      "description": "This policy assignment configures settings related to Management Health Alerting",
+      "notScopes": [],
+      "parameters": {
+        "alzMonitorResourceGroupLocation": {
+          "value": "OVERRIDE"
+        },
+        "alzMonitorResourceGroupName": {
+          "value": "OVERRIDE"
+        },
+        "alzMonitorResourceGroupTags": {
+          "value": {
+            "_deployed_by_alz_monitor": true
+          }
+        },
+        "aaTotalJobAlertSeverity": {
+          "value": "2"
+        },
+        "aaTotalJobAlertEvaluationFrequency": {
+          "value": "PT1M"
+        },
+        "aaTotalJobAlertPolicyEffect": {
+          "value": "DeployIfNotExists"
+        },
+        "aaTotalJobAlertAlertState": {
+          "value": "true"
+        },
+        "aaTotalJobAlertThreshold": {
+          "value": "20"
+        },
+        "rvBackupHealthMonitorPolicyEffect": {
+          "value": "Modify"
+        },
+        "storageAccountAvailabilityAlertSeverity": {
+          "value": "1"
+        },
+        "storageAccountAvailabilityWindowSize": {
+          "value": "PT5M"
+        },
+        "storageAccountAvailabilityFrequency": {
+          "value": "PT5M"
+        },
+        "storageAccountAvailabilityPolicyEffect": {
+          "value": "DeployIfNotExists"
+        },
+        "storageAccountAvailabilityAlertState": {
+          "value": "true"
+        },
+        "storageAccountAvailabilityThreshold": {
+          "value": "90"
+        },
+        "storageAccountDeletePolicyEffect": {
+          "value": "DeployIfNotExists"
+        },
+        "storageAccountDeleteAlertState": {
+          "value": "true"
+        },
+        "activityLAWDeleteAlertState": {
+          "value": "true"
+        },
+        "activityLAWKeyRegenAlertState": {
+          "value": "true"
+        },
+        "aaTotalJobAlertWindowSize": {
+          "value": "PT5M"
+        }        
+      },
+      "policyDefinitionId": "${root_scope_resource_id}/providers/Microsoft.Authorization/policySetDefinitions/Alerting-Management",
+      "nonComplianceMessages": [],
+      "scope": "${current_scope_resource_id}",
+      "enforcementMode": null
+    },
+    "location": "${default_location}",
+    "identity": {
+      "type": "SystemAssigned"
+    }
+  }

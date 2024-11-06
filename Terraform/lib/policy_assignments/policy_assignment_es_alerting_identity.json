@@ -1,0 +1,103 @@
+{
+    "name": "Alerting-Identity",
+    "type": "Microsoft.Authorization/policyAssignments",
+    "apiVersion": "2022-06-01",
+    "properties": {
+      "displayName": "Deploy Azure Monitor Baseline Alerts for Identity",
+      "description": "This policy assignment configures settings related to Identity Health Alerting",
+      "notScopes": [],
+      "parameters": {
+        "alzMonitorResourceGroupLocation": {
+          "value": "OVERRIDE"
+        },
+        "alzMonitorResourceGroupName": {
+          "value": "OVERRIDE"
+        },
+        "alzMonitorResourceGroupTags": {
+          "value": {
+            "_deployed_by_alz_monitor": true
+          }
+        },
+        "kvRequestAlertSeverity": {
+          "value": "2"
+        },
+        "kvRequestWindowSize": {
+          "value": "PT5M"
+        },
+        "kvRequestEvaluationFrequency": {
+          "value": "PT5M"
+        },
+        "kvRequestPolicyEffect": {
+          "value": "Disabled"
+        },
+        "kvRequestAlertState": {
+          "value": "true"
+        },
+        "kvAvailabilityAlertSeverity": {
+          "value": "1"
+        },
+        "kvAvailabilityWindowSize": {
+          "value": "PT1M"
+        },
+        "kvAvailabilityEvaluationFrequency": {
+          "value": "PT1M"
+        },
+        "kvAvailabilityPolicyEffect": {
+          "value": "Disabled"
+        },
+        "kvAvailabilityAlertState": {
+          "value": "true"
+        },
+        "kvAvailabilityThreshold": {
+          "value": "20"
+        },
+        "kvLatencyAvailabilityAlertSeverity": {
+          "value": "3"
+        },
+        "kvLatencyAvailabilityWindowSize": {
+          "value": "PT5M"
+        },
+        "kvLatencyAvailabilityEvaluationFrequency": {
+          "value": "PT5M"
+        },
+        "kvLatencyAvailabilityPolicyEffect": {
+          "value": "Disabled"
+        },
+        "kvLatencyAvailabilityAlertState": {
+          "value": "true"
+        },
+        "kvLatencyAvailabilityThreshold": {
+          "value": "1000"
+        },
+        "kvCapacityAlertSeverity": {
+          "value": "1"
+        },
+        "kvCapacityWindowSize": {
+          "value": "PT5M"
+        },
+        "kvCapacityEvaluationFrequency": {
+          "value": "PT1M"
+        },
+        "kvCapacityPolicyEffect": {
+          "value": "Disabled"
+        },
+        "kvCapacityAlertState": {
+          "value": "true"
+        },
+        "kvCapacityThreshold": {
+          "value": "75"
+        },
+        "activityKVDeleteAlertState": {
+          "value": "true"
+        }
+      },
+      "policyDefinitionId": "${root_scope_resource_id}/providers/Microsoft.Authorization/policySetDefinitions/Alerting-Identity",
+      "nonComplianceMessages": [],
+      "scope": "${current_scope_resource_id}",
+      "enforcementMode": null
+    },
+    "location": "${default_location}",
+    "identity": {
+      "type": "SystemAssigned"
+    }
+  }

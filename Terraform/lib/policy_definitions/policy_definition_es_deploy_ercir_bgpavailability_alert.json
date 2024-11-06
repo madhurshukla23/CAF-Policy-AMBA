@@ -1,0 +1,318 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+  "name": "Deploy_ERCIR_BgpAvailability_Alert",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Deploy ExpressRoute Circuits Bgp Availability Alert",
+    "description": "Policy to audit/deploy ExpressRoute Circuits Bgp Availability Alert",
+    "mode": "All",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud"
+      ],
+      "version": "1.1.0",
+      "source": "https://github.com/Azure/azure-monitor-baseline-alerts/",
+      "category": "Network",
+      "_deployed_by_amba": "True"
+    },
+    "parameters": {
+      "evaluationFrequency": {
+        "allowedValues": [
+          "PT1M",
+          "PT5M",
+          "PT15M",
+          "PT30M",
+          "PT1H"
+        ],
+        "defaultValue": "PT1M",
+        "metadata": {
+          "description": "Evaluation frequency for the alert",
+          "displayName": "Evaluation Frequency"
+        },
+        "type": "string"
+      },
+      "windowSize": {
+        "allowedValues": [
+          "PT1M",
+          "PT5M",
+          "PT15M",
+          "PT30M",
+          "PT1H",
+          "PT6H",
+          "PT12H",
+          "P1D"
+        ],
+        "defaultValue": "PT5M",
+        "metadata": {
+          "description": "Window size for the alert",
+          "displayName": "Window Size"
+        },
+        "type": "string"
+      },
+      "effect": {
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "description": "Effect of the policy",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      },
+      "enabled": {
+        "allowedValues": [
+          "true",
+          "false"
+        ],
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Alert state for the alert",
+          "displayName": "Alert State"
+        },
+        "type": "string"
+      },
+      "severity": {
+        "allowedValues": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "defaultValue": "0",
+        "metadata": {
+          "description": "Severity of the Alert",
+          "displayName": "Severity"
+        },
+        "type": "string"
+      },
+      "autoMitigate": {
+        "allowedValues": [
+          "true",
+          "false"
+        ],
+        "defaultValue": "true",
+        "metadata": {
+          "description": "Auto Mitigate for the alert",
+          "displayName": "Auto Mitigate"
+        },
+        "type": "string"
+      },
+      "threshold": {
+        "defaultValue": "90",
+        "metadata": {
+          "description": "Threshold for the alert",
+          "displayName": "Threshold"
+        },
+        "type": "string"
+      },
+      "monitorDisable": {
+        "defaultValue": "MonitorDisable",
+        "metadata": {
+          "description": "Tag name to disable monitoring resource. Set to true if monitoring should be disabled",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/expressRouteCircuits"
+          },
+          {
+            "field": "[concat('tags[', parameters('MonitorDisable'), ']')]",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/metricAlerts",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricNamespace",
+                "equals": "Microsoft.Network/expressRouteCircuits"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricName",
+                "equals": "BgpAvailability"
+              },
+              {
+                "field": "Microsoft.Insights/metricalerts/scopes[*]",
+                "equals": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/expressRouteCircuits/', field('fullName'))]"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/enabled",
+                "equals": "[parameters('enabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/evaluationFrequency",
+                "equals": "[parameters('evaluationFrequency')]"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/windowSize",
+                "equals": "[parameters('windowSize')]"
+              },
+              {
+                "field": "Microsoft.Insights/metricalerts/severity",
+                "equals": "[parameters('severity')]"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/autoMitigate",
+                "equals": "[parameters('autoMitigate')]"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft-Azure-Monitor-SingleResourceMultipleMetricCriteria.allOf[*].timeAggregation",
+                "equals": "Average"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].StaticThresholdCriterion.operator",
+                "equals": "LessThan"
+              },
+              {
+                "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].StaticThresholdCriterion.threshold",
+                "equals": "[parameters('threshold')]"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "parameters": {
+                "resourceId": {
+                  "value": "[field('id')]"
+                },
+                "evaluationFrequency": {
+                  "value": "[parameters('evaluationFrequency')]"
+                },
+                "windowSize": {
+                  "value": "[parameters('windowSize')]"
+                },
+                "enabled": {
+                  "value": "[parameters('enabled')]"
+                },
+                "severity": {
+                  "value": "[parameters('severity')]"
+                },
+                "autoMitigate": {
+                  "value": "[parameters('autoMitigate')]"
+                },
+                "threshold": {
+                  "value": "[parameters('threshold')]"
+                },
+                "resourceName": {
+                  "value": "[field('name')]"
+                }
+              },
+              "mode": "incremental",
+              "template": {
+                "parameters": {
+                  "resourceId": {
+                    "metadata": {
+                      "description": "Resource ID of the resource emitting the metric that will be used for the comparison",
+                      "displayName": "resourceId"
+                    },
+                    "type": "string"
+                  },
+                  "evaluationFrequency": {
+                    "type": "string"
+                  },
+                  "windowSize": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "string"
+                  },
+                  "severity": {
+                    "type": "string"
+                  },
+                  "autoMitigate": {
+                    "type": "string"
+                  },
+                  "threshold": {
+                    "type": "string"
+                  },
+                  "resourceName": {
+                    "metadata": {
+                      "description": "Name of the resource",
+                      "displayName": "resourceName"
+                    },
+                    "type": "string"
+                  }
+                },
+                "contentVersion": "1.0.0.0",
+                "resources": [
+                  {
+                    "type": "Microsoft.Insights/metricAlerts",
+                    "properties": {
+                      "description": "Metric Alert for ExpressRoute Circuit Bgp Availability",
+                      "parameters": {
+                        "evaluationFrequency": {
+                          "value": "[parameters('evaluationFrequency')]"
+                        },
+                        "windowSize": {
+                          "value": "[parameters('windowSize')]"
+                        },
+                        "enabled": {
+                          "value": "[parameters('enabled')]"
+                        },
+                        "severity": {
+                          "value": "[parameters('severity')]"
+                        },
+                        "autoMitigate": {
+                          "value": "[parameters('autoMitigate')]"
+                        },
+                        "threshold": {
+                          "value": "[parameters('threshold')]"
+                        }
+                      },
+                      "evaluationFrequency": "[parameters('evaluationFrequency')]",
+                      "windowSize": "[parameters('windowSize')]",
+                      "enabled": "[parameters('enabled')]",
+                      "severity": "[parameters('severity')]",
+                      "autoMitigate": "[parameters('autoMitigate')]",
+                      "scopes": [
+                        "[parameters('resourceId')]"
+                      ],
+                      "criteria": {
+                        "allOf": [
+                          {
+                            "threshold": "[parameters('threshold')]",
+                            "timeAggregation": "Average",
+                            "operator": "LessThan",
+                            "name": "BgpAvailability",
+                            "metricNamespace": "Microsoft.Network/expressRouteCircuits",
+                            "criterionType": "StaticThresholdCriterion",
+                            "metricName": "BgpAvailability"
+                          }
+                        ],
+                        "odata.type": "Microsoft.Azure.Monitor.SingleResourceMultipleMetricCriteria"
+                      }
+                    },
+                    "location": "global",
+                    "apiVersion": "2018-03-01",
+                    "name": "[concat(parameters('resourceName'), '-BgpAvailability')]",
+                    "tags": {
+                      "_deployed_by_amba": true
+                    }
+                  }
+                ],
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "variables": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

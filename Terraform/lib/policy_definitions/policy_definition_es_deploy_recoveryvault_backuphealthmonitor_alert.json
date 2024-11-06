@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+  "name": "Deploy_RecoveryVault_BackupHealthMonitor_Alert",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "properties": {
+    "displayName": "Deploy RV Backup Health Monitoring Alerts",
+    "description": "Policy to audit/update Recovery Vault Backup Health Alerting to Azure monitor alerts",
+    "mode": "All",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud"
+      ],
+      "version": "1.0.0",
+      "source": "https://github.com/Azure/azure-monitor-baseline-alerts/",
+      "category": "Site Recovery",
+      "_deployed_by_amba": "True"
+    },
+    "parameters": {
+      "effect": {
+        "allowedValues": [
+          "Modify",
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Modify",
+        "metadata": {
+          "description": "Effect of the policy",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      },
+      "monitorDisable": {
+        "defaultValue": "MonitorDisable",
+        "metadata": {
+          "description": "Tag name to disable monitoring resource. Set to true if monitoring should be disabled",
+          "displayName": "Effect"
+        },
+        "type": "string"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.RecoveryServices/Vaults"
+          },
+          {
+            "field": "[concat('tags[', parameters('MonitorDisable'), ']')]",
+            "notEquals": "true"
+          },
+          {
+            "field": "Microsoft.RecoveryServices/vaults/monitoringSettings.azureMonitorAlertSettings.alertsForAllJobFailures",
+            "notEquals": "Enabled"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "conflictEffect": "Audit",
+          "operations": [
+            {
+              "field": "Microsoft.RecoveryServices/vaults/monitoringSettings.classicAlertSettings.alertsForCriticalOperations",
+              "value": "Disabled",
+              "operation": "addOrReplace"
+            },
+            {
+              "field": "Microsoft.RecoveryServices/vaults/monitoringSettings.azureMonitorAlertSettings.alertsForAllJobFailures",
+              "value": "Enabled",
+              "operation": "addOrReplace"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

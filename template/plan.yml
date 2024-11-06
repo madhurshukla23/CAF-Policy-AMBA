@@ -1,0 +1,79 @@
+parameters:
+  Env: ""
+  vmImage: $(vmImage)
+  poolName: $(poolName)
+  #env_sub_staging: $(state)
+
+steps:
+  - checkout: self
+    displayName: Checkout Terraform Module
+
+  - task: AzureCLI@2
+    name: 'CheckAndUnlockBlobLease'
+    inputs:
+      azureSubscription: "$(ServiceConnection)"
+      addSpnToEnvironment: true
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $storageaccountkey = az storage account keys list -g $(TERRAFORMSTORAGERG) `
+                                                        -n $(TERRAFORMSTORAGEACCOUNT) `
+                                                        --query '[0].value' --subscription $(statefile_subscription) --output tsv
+        $leaseStatus = az storage blob show --container-name $(TERRAFORMSTORAGECONTAINER) `
+                                            --account-name $(TERRAFORMSTORAGEACCOUNT) `
+                                            --account-key $storageaccountkey `
+                                            --name policy-${{ parameters.Env }}.tfstate `
+                                            --query 'properties.lease.status' --output tsv
+        if($leaseStatus -eq "locked") {
+            az storage blob lease break --blob-name policy-${{ parameters.Env }}.tfstate `
+                                        --container-name $(TERRAFORMSTORAGECONTAINER) `
+                                        --account-name $(TERRAFORMSTORAGEACCOUNT) `
+                                        --account-key $storageaccountkey
+            Write-Host "Successfully unlocked blob [policy-${{ parameters.Env }}.tfstate]."
+        }
+        else {
+            Write-Host "No lock on blob [policy-${{ parameters.Env }}.tfstate]."
+        }
+      workingDirectory: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform Init
+    inputs:
+      provider: "azurerm"
+      command: "init"
+      workingDirectory: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+      backendServiceArm: "$(ServiceConnection)"
+      backendAzureRmResourceGroupName: "$(TERRAFORMSTORAGERG)"
+      backendAzureRmStorageAccountName: "$(TERRAFORMSTORAGEACCOUNT)"
+      backendAzureRmContainerName: "$(TERRAFORMSTORAGECONTAINER)"
+      backendAzureRmKey: "policy-${{ parameters.Env }}.tfstate"
+    env:
+      ARM_USE_AZUREAD: true
+
+  - task: TerraformTaskV4@4
+    displayName: Terraform Plan
+    inputs:
+      provider: "azurerm"
+      command: "plan"
+      workingDirectory: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+      commandOptions: "-out main.tfplan"
+      environmentServiceNameAzureRM: "$(ServiceConnection)"
+    env:
+      ARM_USE_AZUREAD: true
+      
+  - task: CopyFiles@2
+    displayName: "Copy provider configurations"
+    condition: succeeded()
+    inputs:
+      SourceFolder: "$(System.DefaultWorkingDirectory)/Platform/Layers/Policy/${{ parameters.Env }}"
+      Contents: |
+        **.tfplan
+      TargetFolder: "$(Build.ArtifactStagingDirectory)"
+      CleanTargetFolder: true
+      flattenFolders: false
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+      ArtifactName: "main.tfplan"
+      publishLocation: "Container"

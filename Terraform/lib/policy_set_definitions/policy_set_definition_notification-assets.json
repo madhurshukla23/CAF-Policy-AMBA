@@ -1,0 +1,191 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+  "name": "Notification-Assets",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Deploy Azure Monitor Baseline Alerts - Notification Assets",
+    "description": "Initiative to deploy AMBA Notification Assets",
+    "metadata": {
+      "alzCloudEnvironments": [
+        "AzureCloud"
+      ],
+      "version": "1.2.0",
+      "source": "https://github.com/Azure/azure-monitor-baseline-alerts/",
+      "category": "Monitoring",
+      "_deployed_by_amba": true
+    },
+    "parameters": {
+      "alzMonitorResourceGroupLocation": {
+        "metadata": {
+          "description": "Location of the resource group",
+          "displayName": "Resource Group Location"
+        },
+        "defaultValue": "centralus",
+        "type": "string"
+      },
+      "alzMonitorResourceGroupName": {
+        "metadata": {
+          "description": "Name of the resource group to deploy the alerts to",
+          "displayName": "Resource Group Name"
+        },
+        "defaultValue": "ALZ-Monitoring-RG",
+        "type": "string"
+      },
+      "alzMonitorResourceGroupTags": {
+        "metadata": {
+          "description": "Tags to apply to the resource group",
+          "displayName": "Resource Group Tags"
+        },
+        "defaultValue": {
+          "_deployed_by_alz_monitor": true
+        },
+        "type": "Object"
+      },
+      "alzMonitorActionGroupEmail": {
+        "metadata": {
+          "description": "Email addresses to send alerts to",
+          "displayName": "Action Group Email Addresses"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "byoActionGroup": {
+        "metadata": {
+          "description": "The Resource ID of an existing Action Group already deployed by the customer in his environment",
+          "displayName": "Customer defined Action Group Resource ID"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "byoAlertProcessingRule": {
+        "metadata": {
+          "description": "The Resource ID of an existing Alert Processing Rule already deployed by the customer in his environment",
+          "displayName": "Customer defined Alert Processing Rule Resource ID"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzLogicappCallbackUrl": {
+        "metadata": {
+          "description": "Callback URL that triggers the Logic App",
+          "displayName": "Logic App Callback URL"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzEventHubResourceId": {
+        "metadata": {
+          "description": "Event Hub resource id for action group to send alerts to",
+          "displayName": "Event Hub resource id"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzFunctionResourceId": {
+        "metadata": {
+          "description": "Function Resource Id for Action Group to send alerts to",
+          "displayName": "Function Resource Id"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzLogicappResourceId": {
+        "metadata": {
+          "description": "Logic App Resource Id for Action Group to send alerts to",
+          "displayName": "Logic App Resource Id"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzFunctionTriggerUrl": {
+        "metadata": {
+          "description": "URL that triggers the Function",
+          "displayName": "Function Trigger URL"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzWebhookServiceUri": {
+        "metadata": {
+          "description": "Indicates the service uri of the webhook to send alerts to",
+          "displayName": "Webhook Service Uri"
+        },
+        "defaultValue": "",
+        "type": "string"
+      },
+      "alzArmRoleId": {
+        "metadata": {
+          "description": "Arm Built-in Role Id for action group to send alerts to a subscription level, will only send to individual members of role",
+          "displayName": "Arm Role Id"
+        },
+        "defaultValue": "",
+        "type": "string"
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "ALZ_AlertProcessing_Rule",
+        "policyDefinitionId": "${root_scope_resource_id}/providers/Microsoft.Authorization/policyDefinitions/Deploy_AlertProcessing_Rule",
+        "policyDefinitionName": "Deploy_AlertProcessing_Rule",
+        "parameters": {
+          "alzMonitorResourceGroupLocation": {
+            "value": "[parameters('ALZMonitorResourceGroupLocation')]"
+          },
+          "alzMonitorResourceGroupName": {
+            "value": "[parameters('ALZMonitorResourceGroupName')]"
+          },
+          "alzMonitorResourceGroupTags": {
+            "value": "[parameters('ALZMonitorResourceGroupTags')]"
+          },
+          "alzMonitorActionGroupEmail": {
+            "value": "[parameters('ALZMonitorActionGroupEmail')]"
+          },
+          "byoActionGroup": {
+            "value": "[parameters('BYOActionGroup')]"
+          },
+          "byoAlertProcessingRule": {
+            "value": "[parameters('BYOAlertProcessingRule')]"
+          },
+          "alzLogicappCallbackUrl": {
+            "value": "[parameters('ALZLogicappCallbackUrl')]"
+          },
+          "alzEventHubResourceId": {
+            "value": "[parameters('ALZEventHubResourceId')]"
+          },
+          "alzFunctionResourceId": {
+            "value": "[parameters('ALZFunctionResourceId')]"
+          },
+          "alzLogicappResourceId": {
+            "value": "[parameters('ALZLogicappResourceId')]"
+          },
+          "alzFunctionTriggerUrl": {
+            "value": "[parameters('ALZFunctionTriggerUrl')]"
+          },
+          "alzWebhookServiceUri": {
+            "value": "[parameters('ALZWebhookServiceUri')]"
+          },
+          "alzArmRoleId": {
+            "value": "[parameters('ALZArmRoleId')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "ALZ_Suppression_AlertProcessing_Rule",
+        "policyDefinitionId": "${root_scope_resource_id}/providers/Microsoft.Authorization/policyDefinitions/Deploy_Suppression_AlertProcessing_Rule",
+        "policyDefinitionName": "Deploy_Suppression_AlertProcessing_Rule",
+        "parameters": {
+          "alzMonitorResourceGroupLocation": {
+            "value": "[parameters('ALZMonitorResourceGroupLocation')]"
+          },
+          "alzMonitorResourceGroupName": {
+            "value": "[parameters('ALZMonitorResourceGroupName')]"
+          },
+          "alzMonitorResourceGroupTags": {
+            "value": "[parameters('ALZMonitorResourceGroupTags')]"
+          }
+        }
+      }
+    ],
+    "policyDefinitionGroups": []
+  }
+}

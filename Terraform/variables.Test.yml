@@ -1,0 +1,8 @@
+variables:
+  - group: Platform-Variables
+ 
+#Below Variables are added in the variable group
+#   TERRAFORMSTORAGERG --- backend storage RG name
+#   TERRAFORMSTORAGEACCOUNT --- backend storage account name
+#   TERRAFORMSTORAGECONTAINER --- backend storage container name
+#   ServiceConnection --- Service Connection Name
